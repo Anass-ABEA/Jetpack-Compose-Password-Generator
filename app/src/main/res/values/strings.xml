@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">PasswordVault</string>
+
+    <string name="generate_a_password">Generate a Password</string>
+    <string name="generate">Generate</string>
+    <string name="copy">Copy</string>
+    <string name="upper_case">Upper Case</string>
+    <string name="lower_case">Lower Case</string>
+    <string name="numeric">Numeric</string>
+    <string name="click_on_generate">Click on Generate</string>
+    <string name="password_size">Password Size</string>
+
+
+</resources>
