@@ -1,6 +1,9 @@
 package com.whitebatcodes.passwordvault
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -31,10 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getSystemService
+import com.whitebatcodes.passwordvault.models.password.PasswordGenerator
+import com.whitebatcodes.passwordvault.models.password.contents.CustomPwdContent
 import com.whitebatcodes.passwordvault.ui.theme.PasswordVaultTheme
 
 class PasswordGeneratorActivity : ComponentActivity() {
@@ -52,13 +59,14 @@ class PasswordGeneratorActivity : ComponentActivity() {
 fun PasswordGen() {
     var generatedPassword by remember { mutableStateOf("") }
     var passwordSize by remember { mutableStateOf("8") }
-    var customPasswordSetting by remember { mutableStateOf("@{}") }
+    var customPasswordSetting by remember { mutableStateOf("?!@,-_&#(){}[]") }
 
     var isUpper by remember { mutableStateOf(true) }
     var isLower by remember { mutableStateOf(true) }
     var isNumeric by remember { mutableStateOf(false) }
     var isCustom by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
     Surface {
         Column(
             modifier = Modifier
@@ -86,7 +94,16 @@ fun PasswordGen() {
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            val clipboardManager = getSystemService(
+                                context,
+                                ClipboardManager::class.java
+                            ) as ClipboardManager
+                            val clipData = ClipData.newPlainText("text", generatedPassword)
+                            clipboardManager.setPrimaryClip(clipData)
+
+                            Toast.makeText(context, "Password Copied",Toast.LENGTH_SHORT).show()
+                        },
                         enabled = generatedPassword.isNotEmpty(),
                         shape = RoundedCornerShape(5.dp)
                     ) {
@@ -136,7 +153,7 @@ fun PasswordGen() {
             PasswordSize(
                 passwordSize = passwordSize,
                 onValueChange = {
-                    if (it.isNotEmpty() && it.toInt() < 200) {
+                    if ((it.isNotEmpty() && it.toInt() < 200) || it.isEmpty()) {
                         passwordSize = it
                     }
                 }
@@ -144,7 +161,18 @@ fun PasswordGen() {
             Spacer(modifier = Modifier.height(10.dp))
             Button(
                 shape = RoundedCornerShape(5.dp),
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val pwdGen = PasswordGenerator.Builder()
+                        .addUpper(isUpper)
+                        .addLower(isLower)
+                        .addNumeric(isNumeric)
+                        .addCustom(isCustom, CustomPwdContent(customPasswordSetting))
+                        .setSize(if (passwordSize.isEmpty()) 8 else passwordSize.toInt())
+                        .build()
+
+                    generatedPassword = pwdGen.generatePassword()
+
+                },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = (isUpper || isLower || isCustom || isNumeric) && passwordSize.isNotEmpty() && passwordSize.toInt() > 0
             ) {
