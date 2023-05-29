@@ -1,12 +1,17 @@
 package com.whitebatcodes.passwordvault
 
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,23 +46,84 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
+import com.whitebatcodes.passwordvault.PasswordGeneratorActivity.Companion.BEFORE_CREATE_EDIT_PASSWORD
+import com.whitebatcodes.passwordvault.models.password.SavedPassword
+import com.whitebatcodes.passwordvault.models.password.SavedPasswordDb
+import com.whitebatcodes.passwordvault.models.password.SavedPasswordRepo
 import com.whitebatcodes.passwordvault.models.passwordGen.PasswordGenerator
 import com.whitebatcodes.passwordvault.models.passwordGen.contents.CustomPwdContent
 import com.whitebatcodes.passwordvault.ui.theme.PasswordVaultTheme
+import kotlinx.coroutines.runBlocking
 
 class PasswordGeneratorActivity : ComponentActivity() {
+
+    companion object {
+        const val BEFORE_CREATE_EDIT_PASSWORD = "Pwd-Before-Edit-Create"
+        const val AFTER_CREATE_EDIT_PASSWORD = "Pwd-After-Edit-Create"
+    }
+
+    private lateinit var savedPwdRepo: SavedPasswordRepo
+    private lateinit var savedPwdDb: SavedPasswordDb
+
+    val activityResultReg = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+
+            result ->
+
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+
+            if (data != null) {
+
+                val receivedPassword = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                        data.getParcelableExtra(
+                            AFTER_CREATE_EDIT_PASSWORD,
+                            SavedPassword::class.java
+                        )
+
+                    else -> @Suppress("DEPRECATION") data.getSerializableExtra(
+                        AFTER_CREATE_EDIT_PASSWORD
+                    ) as SavedPassword
+                }
+
+                if (receivedPassword != null) {
+
+                    runBlocking {
+                        savedPwdRepo.insert(receivedPassword)
+                    }
+
+                    Log.d("Password", "" + receivedPassword)
+                }
+
+            }
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            PasswordGen()
+            PasswordGen(activityResultReg)
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        savedPwdDb = SavedPasswordDb.getDatabase(baseContext)
+        savedPwdRepo = SavedPasswordRepo(savedPwdDb.savedPasswordDao())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        savedPwdDb.close()
+    }
 }
 
 @Composable
-fun PasswordGen() {
+fun PasswordGen(activityResultReg: ActivityResultLauncher<Intent>?) {
     var generatedPassword by remember { mutableStateOf("") }
     var passwordSize by remember { mutableStateOf("8") }
     var customPasswordSetting by remember { mutableStateOf("?!@,-_&#(){}[]") }
@@ -103,7 +169,7 @@ fun PasswordGen() {
                             val clipData = ClipData.newPlainText("text", generatedPassword)
                             clipboardManager.setPrimaryClip(clipData)
 
-                            Toast.makeText(context, "Password Copied",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Password Copied", Toast.LENGTH_SHORT).show()
                         },
                         enabled = generatedPassword.isNotEmpty(),
                         shape = RoundedCornerShape(5.dp)
@@ -184,14 +250,20 @@ fun PasswordGen() {
             Button(
                 shape = RoundedCornerShape(5.dp),
                 onClick = {
-                    context.startActivity(Intent(context,PasswordEditorActivity::class.java))
+
+                    val intent = Intent(context, PasswordEditorActivity::class.java)
+                    intent.putExtra(
+                        BEFORE_CREATE_EDIT_PASSWORD,
+                        SavedPassword(password = generatedPassword)
+                    )
+
+                    activityResultReg?.launch(intent)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = generatedPassword.isNotEmpty()
             ) {
                 Text(text = stringResource(id = R.string.save))
             }
-
 
 
         }
@@ -260,6 +332,6 @@ fun EditableCheckBox(
 @Composable
 fun PasswordGenPreview() {
     PasswordVaultTheme {
-        PasswordGen()
+        PasswordGen(null)
     }
 }
