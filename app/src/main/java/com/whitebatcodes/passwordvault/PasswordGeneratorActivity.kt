@@ -2,6 +2,7 @@ package com.whitebatcodes.passwordvault
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -40,8 +41,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
-import com.whitebatcodes.passwordvault.models.password.PasswordGenerator
-import com.whitebatcodes.passwordvault.models.password.contents.CustomPwdContent
+import com.whitebatcodes.passwordvault.models.passwordGen.PasswordGenerator
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.CustomPwdContent
 import com.whitebatcodes.passwordvault.ui.theme.PasswordVaultTheme
 
 class PasswordGeneratorActivity : ComponentActivity() {
@@ -178,6 +179,20 @@ fun PasswordGen() {
             ) {
                 Text(text = stringResource(id = R.string.generate))
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(
+                shape = RoundedCornerShape(5.dp),
+                onClick = {
+                    context.startActivity(Intent(context,PasswordEditorActivity::class.java))
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = generatedPassword.isNotEmpty()
+            ) {
+                Text(text = stringResource(id = R.string.save))
+            }
+
+
 
         }
     }

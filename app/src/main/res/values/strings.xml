@@ -10,5 +10,12 @@
     <string name="click_on_generate">Click on Generate</string>
     <string name="password_size">Password Size</string>
 
+    <string name="create_new_password">Create New password</string>
+    <string name="name">Name*</string>
+    <string name="login">Login*</string>
+    <string name="site_link">Website Link</string>
+    <string name="description">Description</string>
+    <string name="save">Save</string>
+
 
 </resources>

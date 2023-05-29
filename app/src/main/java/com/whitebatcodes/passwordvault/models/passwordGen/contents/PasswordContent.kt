@@ -1,4 +1,4 @@
-package com.whitebatcodes.passwordvault.models.password.contents
+package com.whitebatcodes.passwordvault.models.passwordGen.contents
 
 interface PasswordContent {
 

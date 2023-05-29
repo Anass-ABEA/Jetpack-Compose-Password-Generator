@@ -1,4 +1,4 @@
-package com.whitebatcodes.passwordvault.models.password.contents
+package com.whitebatcodes.passwordvault.models.passwordGen.contents
 
 data class NumericPwdContentImpl(override var content: String = "1234567890") : PasswordContent
 

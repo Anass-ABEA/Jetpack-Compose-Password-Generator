@@ -1,10 +1,10 @@
-package com.whitebatcodes.passwordvault.models.password
+package com.whitebatcodes.passwordvault.models.passwordGen
 
-import com.whitebatcodes.passwordvault.models.password.contents.CustomPwdContent
-import com.whitebatcodes.passwordvault.models.password.contents.LowerPwdContent
-import com.whitebatcodes.passwordvault.models.password.contents.NumericPwdContent
-import com.whitebatcodes.passwordvault.models.password.contents.PasswordContent
-import com.whitebatcodes.passwordvault.models.password.contents.UpperPwdContent
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.CustomPwdContent
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.LowerPwdContent
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.NumericPwdContent
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.PasswordContent
+import com.whitebatcodes.passwordvault.models.passwordGen.contents.UpperPwdContent
 
 data class PasswordGenerator(
     var passwordSize: Int,
