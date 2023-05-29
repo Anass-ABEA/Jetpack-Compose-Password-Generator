@@ -1,7 +1,7 @@
 # Build your Password Generator using Jetpack Compose
 
 ## Description
-In this video We'll show you how to create a simple jetpack compose project with a simple login interface containing login, password and a remember me checkbox.
+In this project, we'll create a simple Jetpack Compose project to generate passwords and store them locally in a secure way. we'll be using encryption, a local database and many more.
 
 In [part 2](https://medium.com/@WhiteBatCodes/create-your-password-generator-in-jetpack-compose-interface-44959b8e1551), We have been able to generate a new password based on the user's preferences and copy that password. In this part, we'll be creating a UI that will allow the user to save the passwrod. The Ui will contain additional information that the user needs to add. This part is limited to the UI only.
 
